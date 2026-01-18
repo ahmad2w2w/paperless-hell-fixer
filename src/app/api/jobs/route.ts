@@ -6,7 +6,6 @@ import { processDocument } from "@/lib/processDocument";
 import { getMobileUserFromRequest } from "@/lib/mobile-auth";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
 export async function GET() {
   const session = await getServerSession(authOptions);

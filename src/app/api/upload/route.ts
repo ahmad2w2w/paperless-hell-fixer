@@ -7,7 +7,6 @@ import { getMobileUserFromRequest } from "@/lib/mobile-auth";
 import { processDocument } from "@/lib/processDocument";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Allow up to 60 seconds for processing
 
 export async function POST(req: Request) {
   // Check for mobile auth first (Bearer token)
