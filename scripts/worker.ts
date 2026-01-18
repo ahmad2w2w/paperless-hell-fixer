@@ -27,6 +27,7 @@ async function processOneJob() {
           id: true,
           filePath: true,
           mimetype: true,
+          language: true, // Get the language preference
         },
       },
     },
@@ -40,6 +41,8 @@ async function processOneJob() {
   });
   if (claimed.count === 0) return true;
 
+  const language = job.document.language || "nl";
+
   try {
     const absolutePath = path.join(process.cwd(), job.document.filePath);
     const extractedText = await extractTextFromFile({
@@ -47,7 +50,8 @@ async function processOneJob() {
       mimetype: job.document.mimetype,
     });
 
-    const llm = await extractWithOpenAI(extractedText || "(geen tekst gevonden)");
+    const noTextMessage = language === "ar" ? "(لم يتم العثور على نص)" : "(geen tekst gevonden)";
+    const llm = await extractWithOpenAI(extractedText || noTextMessage, language);
 
     const docDeadline = toDateOrNull(llm.deadline);
 
@@ -60,7 +64,7 @@ async function processOneJob() {
           sender: llm.sender,
           amount: llm.amountEUR === null ? null : new Prisma.Decimal(llm.amountEUR),
           deadline: docDeadline,
-          summary: llm.summarySimpleNL,
+          summary: llm.summarySimple,
           confidence: Math.round(llm.confidence),
         },
       });
@@ -78,12 +82,17 @@ async function processOneJob() {
           })),
         });
       } else {
+        // Default action in the user's language
+        const defaultTitle = language === "ar" ? "تحقق من هذا المستند" : "Controleer dit document";
+        const defaultDesc = language === "ar" 
+          ? "لم نتمكن من العثور على إجراءات واضحة. اقرأ الرسالة وحدد ما يجب عليك فعله."
+          : "We konden geen duidelijke acties vinden. Lees de brief en bepaal wat je moet doen.";
+        
         await tx.actionItem.create({
           data: {
             documentId: job.documentId,
-            title: "Controleer dit document",
-            description:
-              "We konden geen duidelijke acties vinden. Lees de brief en bepaal wat je moet doen.",
+            title: defaultTitle,
+            description: defaultDesc,
             deadline: docDeadline,
           },
         });

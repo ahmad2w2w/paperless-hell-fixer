@@ -26,6 +26,8 @@ export async function POST(req: Request) {
 
   const form = await req.formData();
   const file = form.get("file");
+  const language = (form.get("language") as string) || "nl"; // Default to Dutch
+  
   if (!(file instanceof File)) {
     return NextResponse.json(
       { error: "Upload mislukt: geen bestand ontvangen." },
@@ -61,6 +63,7 @@ export async function POST(req: Request) {
       filePath: stored.relativePath,
       originalFilename: stored.originalFilename,
       mimetype: stored.mimetype,
+      language: language === "ar" ? "ar" : "nl", // Validate language
       job: { create: { status: "PENDING" } },
     },
     select: { id: true },

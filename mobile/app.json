@@ -28,9 +28,10 @@
       "edgeToEdgeEnabled": true,
       "package": "com.paperlesshell.fixer",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -51,6 +52,12 @@
         }
       ],
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "16d73840-4d83-48c0-9973-f6afb2242b59"
+      }
+    },
+    "owner": "ahmad55511111"
   }
 }

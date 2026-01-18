@@ -48,6 +48,7 @@ model Document {
   filePath         String
   originalFilename String
   mimetype         String
+  language         String        @default("nl") // nl or ar
 
   extractedText String?
   type          DocumentType?

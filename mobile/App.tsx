@@ -376,6 +376,8 @@ function AppContent() {
         name: filename,
         type: mimeType,
       } as unknown as Blob);
+      // Send the current language preference so AI responds in the right language
+      formData.append('language', language);
 
       const res = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
