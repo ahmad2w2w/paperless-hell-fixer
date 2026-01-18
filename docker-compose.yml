@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    container_name: paperless-hell-fixer-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: paperless_hell_fixer
+    volumes:
+      - paperless_hell_fixer_pgdata:/var/lib/postgresql/data
+
+volumes:
+  paperless_hell_fixer_pgdata:
+
+

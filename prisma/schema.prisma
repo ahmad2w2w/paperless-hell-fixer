@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentType {
+  BELASTING
+  BOETE
+  VERZEKERING
+  ABONNEMENT
+  OVERIG
+}
+
+enum ActionStatus {
+  OPEN
+  DONE
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  documents    Document[]
+}
+
+model Document {
+  id               String        @id @default(cuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filePath         String
+  originalFilename String
+  mimetype         String
+
+  extractedText String?
+  type          DocumentType?
+  sender        String?
+  amount        Decimal?      @db.Decimal(10, 2)
+  deadline      DateTime?
+  summary       String?
+  confidence    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  actionItems ActionItem[]
+  job         ProcessingJob?
+
+  @@index([userId])
+  @@index([type])
+  @@index([sender])
+}
+
+model ActionItem {
+  id          String       @id @default(cuid())
+  documentId  String
+  document    Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  deadline    DateTime?
+  status      ActionStatus @default(OPEN)
+  notes       String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([documentId])
+  @@index([status])
+  @@index([deadline])
+}
+
+model ProcessingJob {
+  id         String    @id @default(cuid())
+  documentId String    @unique
+  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  status     JobStatus @default(PENDING)
+  error      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([status])
+}
