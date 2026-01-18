@@ -70,13 +70,15 @@ export async function POST(req: Request) {
     select: { id: true },
   });
 
-  // Process the document immediately (don't wait for separate worker)
-  // This runs async so the upload response is fast, but processing starts immediately
-  processDocument(documentId).catch((err) => {
-    console.error("Background processing error:", err);
-  });
-
-  return NextResponse.json({ documentId: doc.id });
+  // Process the document synchronously (user waits, but more reliable)
+  try {
+    await processDocument(documentId);
+    return NextResponse.json({ documentId: doc.id, status: "processed" });
+  } catch (err) {
+    console.error("Processing error:", err);
+    // Return success for upload, processing failed but document is saved
+    return NextResponse.json({ documentId: doc.id, status: "pending", error: String(err) });
+  }
 }
 
 
