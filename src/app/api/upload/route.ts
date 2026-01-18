@@ -4,8 +4,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getStorage } from "@/lib/storage";
 import { getMobileUserFromRequest } from "@/lib/mobile-auth";
+import { processDocument } from "@/lib/processDocument";
 
 export const runtime = "nodejs";
+export const maxDuration = 60; // Allow up to 60 seconds for processing
 
 export async function POST(req: Request) {
   // Check for mobile auth first (Bearer token)
@@ -67,6 +69,12 @@ export async function POST(req: Request) {
       job: { create: { status: "PENDING" } },
     },
     select: { id: true },
+  });
+
+  // Process the document immediately (don't wait for separate worker)
+  // This runs async so the upload response is fast, but processing starts immediately
+  processDocument(documentId).catch((err) => {
+    console.error("Background processing error:", err);
   });
 
   return NextResponse.json({ documentId: doc.id });
