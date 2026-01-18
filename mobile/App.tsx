@@ -26,7 +26,7 @@ import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import type { Language } from './src/lib/translations';
 
 // API Configuration
-const API_BASE_URL = 'http://192.168.1.187:3000';
+const API_BASE_URL = 'https://paperless-hell-fixer.onrender.com';
 
 // Theme
 const theme = {
